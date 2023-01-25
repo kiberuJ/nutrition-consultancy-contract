@@ -51,3 +51,9 @@ class Booking:
              self.application_deletion()],
             [Txn.application_args[0] == self.AppMethods.book, self.book()]
         )
+
+    def approval_program(self):
+        return self.application_start()
+
+    def clear_program(self):
+        return Return(Int(1))
