@@ -1,5 +1,6 @@
 from pyteal import *
 
+
 class Booking:
     class Variables:
         name = Bytes("NAME")
@@ -9,7 +10,7 @@ class Booking:
         time = Bytes("TIME")
 
     class AppMethods:
-        buy = Bytes("buy")
+        book = Bytes("book")
 
     def application_creation(self):
         return Seq([
@@ -23,3 +24,19 @@ class Booking:
             App.globalPut(self.Variables.time, Int(1)),
             Approve()
         ])
+
+    def book(self):
+        valid_number_of_transactions = Global.group_size() == Int(2)
+
+        valid_payment_to_seller = And(
+            Gtxn[1].type_enum() == TxnType.Payment,
+            Gtxn[1].receiver() == Global.creator_address(),
+            Gtxn[1].amount() == App.globalGet(self.Variables.price) *
+            App.globalGet(self.Variables.duration),
+            Gtxn[1].sender() == Gtxn[0].sender(),
+        )
+
+        can_book = And(valid_number_of_transactions,
+                       valid_payment_to_seller)
+
+        return If(can_book).Then(Approve()).Else(Reject())
