@@ -40,3 +40,6 @@ class Booking:
                        valid_payment_to_seller)
 
         return If(can_book).Then(Approve()).Else(Reject())
+
+    def application_deletion(self):
+        return Return(Txn.sender() == Global.creator_address())
